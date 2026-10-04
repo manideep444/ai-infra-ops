@@ -1,6 +1,6 @@
 services:
   metrics:
-    image: prom/node-exporter:v1.9.1
+    image: prom/node-exporter:v1.12.1
     user: "0:0"
     read_only: true
     cap_drop: [ALL]
