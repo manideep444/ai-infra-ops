@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: airp-executor
+  namespace: airp-system
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: airp-admission
+  namespace: airp-system
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: airp-executor
+  namespace: airp-demo
+rules:
+  - apiGroups: [apps]
+    resources: [deployments]
+    resourceNames: [demo-web]
+    verbs: [get, patch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: airp-executor
+  namespace: airp-demo
+subjects:
+  - kind: ServiceAccount
+    name: airp-executor
+    namespace: airp-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: airp-executor
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: airp-observer
+  namespace: airp-system
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: airp-observer
+  namespace: airp-demo
+rules:
+  - apiGroups: [apps]
+    resources: [deployments]
+    resourceNames: [demo-web]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: airp-observer
+  namespace: airp-demo
+subjects:
+  - kind: ServiceAccount
+    name: airp-observer
+    namespace: airp-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: airp-observer

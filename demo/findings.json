@@ -1,0 +1,9 @@
+[
+  {"id":"demo-token-001","source":"kubernetes","category":"kubernetes","severity":"high","rule_id":"K8S-TOKEN-001","description":"Fictional demo-web does not use the Kubernetes API but mounts a service-account token.","target":{"namespace":"airp-demo","name":"demo-web"},"component":"demo-web"},
+  {"id":"demo-dependency-001","source":"dependabot","category":"dependency","severity":"critical","rule_id":"DEMO-2026-001","description":"Fictional dependency advisory. Compatibility evidence is required before upgrading.","component":"fictional-parser@2.0.0"},
+  {"id":"demo-codeql-001","source":"codeql","category":"code","severity":"medium","rule_id":"demo/untrusted-input","description":"Fictional source-analysis finding; application-owner review required.","component":"demo-service"},
+  {"id":"demo-os-001","source":"trivy","category":"os","severity":"high","rule_id":"DEMO-OS-001","description":"Fictional base OS finding; rebuild the image rather than patch a running host.","component":"fictional-base-image"},
+  {"id":"demo-container-001","source":"trivy","category":"container","severity":"medium","rule_id":"DEMO-IMAGE-001","description":"Fictional image finding; validate a rebuilt digest.","component":"fictional-image"},
+  {"id":"demo-iac-001","source":"normalized","category":"infrastructure","severity":"high","rule_id":"DEMO-IAC-001","description":"Fictional public endpoint configuration needs an infrastructure review."},
+  {"id":"demo-compliance-001","source":"normalized","category":"compliance","severity":"low","rule_id":"DEMO-CONTROL-001","description":"Fictional retention-control finding requires evidence from the service owner."}
+]

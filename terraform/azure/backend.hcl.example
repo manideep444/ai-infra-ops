@@ -1,0 +1,6 @@
+resource_group_name  = "operator-owned-state-rg"
+storage_account_name = "replacewithuniquestate"
+container_name       = "tfstate"
+key                  = "ai-infra-ops.tfstate"
+use_azuread_auth      = true
+use_oidc             = true

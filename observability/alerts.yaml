@@ -1,0 +1,17 @@
+groups:
+  - name: airp
+    rules:
+      - alert: RemediationNeedsIntervention
+        expr: airp_remediations_total{outcome="needs_intervention"} > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: Latest CLI execution requires operator intervention
+      - alert: DemoEvidenceStale
+        expr: time() - node_textfile_mtime_seconds > 3600
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: Demo metric snapshot is older than one hour

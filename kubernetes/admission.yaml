@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airp-admission
+  namespace: airp-system
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: airp-admission
+  template:
+    metadata:
+      labels:
+        app: airp-admission
+    spec:
+      serviceAccountName: airp-admission
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: admission
+          image: airp:local
+          imagePullPolicy: Never
+          command: [python, -m, airp.admission]
+          ports:
+            - name: https
+              containerPort: 8443
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          readinessProbe:
+            httpGet:
+              scheme: HTTPS
+              path: /healthz
+              port: https
+          livenessProbe:
+            httpGet:
+              scheme: HTTPS
+              path: /healthz
+              port: https
+          volumeMounts:
+            - name: tls
+              mountPath: /tls
+              readOnly: true
+      volumes:
+        - name: tls
+          secret:
+            secretName: admission-tls
+            defaultMode: 0440
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: airp-admission
+  namespace: airp-system
+spec:
+  selector:
+    app: airp-admission
+  ports:
+    - port: 443
+      targetPort: https
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: airp-admission
+  namespace: airp-system
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: airp-admission

@@ -1,0 +1,24 @@
+{
+  "workloads": [{
+    "target": {"namespace": "airp-demo", "name": "demo-web"},
+    "uid": "fictional-demo-uid", "resource_version": "1", "generation": 1,
+    "observed_generation": 1, "ready_replicas": 2, "updated_replicas": 2, "available_replicas": 2,
+    "spec": {
+      "replicas": 2,
+      "selector": {"matchLabels": {"app": "demo-web"}},
+      "template": {
+        "metadata": {"labels": {"app": "demo-web"}},
+        "spec": {
+          "automountServiceAccountToken": true,
+          "containers": [{"name": "web", "image": "fictional/demo-web:fixture"}]
+        }
+      }
+    }
+  }],
+  "vulnerabilities": {
+    "DEMO-2026-001": {"summary": "Fictional vulnerable dependency for ingestion demonstration", "fixed_version": "2.0.1", "provenance": "fictional fixture, not a real advisory"}
+  },
+  "repositories": {"demo-service": {"language": "python", "owner": "fictional-platform-team"}},
+  "history": {"example-run": [{"state": "manual_required", "actor": "demo-planner"}]},
+  "validations": {"example-run": {"original_rule_resolved": false}}
+}

@@ -1,0 +1,10 @@
+{
+  "servers": {
+    "airp-readonly-evidence": {
+      "type": "stdio",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": ["-m", "airp.mcp.server"],
+      "env": {"AIRP_EVIDENCE_FILE": "${workspaceFolder}/demo/evidence.json"}
+    }
+  }
+}

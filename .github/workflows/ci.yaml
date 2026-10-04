@@ -1,0 +1,84 @@
+name: Quality and Integration
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  python:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        python: ['3.12', '3.13']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          version: '0.12.23'
+          python-version: ${{ matrix.python }}
+      - run: uv sync --frozen
+      - run: make check
+      - run: uv run pip-audit --local --skip-editable
+      - run: uv build
+      - run: uv run airp init-demo && uv run airp demo --approve-demo
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: mock-evidence-${{ matrix.python }}
+          path: .state/reports/
+          include-hidden-files: true
+          retention-days: 7
+  infrastructure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
+        with:
+          terraform_version: '1.16.4'
+      - run: terraform -chdir=terraform/azure fmt -check
+      - run: terraform -chdir=terraform/azure init -backend=false -input=false -lockfile=readonly
+      - run: terraform -chdir=terraform/azure validate
+      - run: |
+          go install github.com/yannh/kubeconform/cmd/kubeconform@v0.8.0
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+          "$(go env GOPATH)/bin/kubeconform" -strict -summary -skip Cluster kubernetes/
+          "$(go env GOPATH)/bin/actionlint"
+          shellcheck scripts/*.sh
+      - run: az bicep install --version v0.34.44
+      - run: az bicep build --file bicep/monitoring.bicep --stdout > /dev/null
+  kind:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          version: '0.12.23'
+      - uses: azure/setup-helm@bf6a7d304bc2fdb57e0331155b7ebf2c504acf0a # v4
+        with:
+          version: v3.18.6
+      - run: go install sigs.k8s.io/kind@v0.31.0
+      - run: echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+      - run: make setup kind-up
+      - run: AIRP_TEST_KIND=1 uv run pytest tests/test_kind.py -v
+      - name: Failure diagnostics
+        if: failure()
+        run: |
+          kubectl --context kind-airp get pods -A
+          kubectl --context kind-airp -n airp-demo describe deployment demo-web
+          kubectl --context kind-airp -n airp-system logs deployment/airp-admission --tail=80
+      - name: Teardown
+        if: always()
+        run: kind delete cluster --name airp

@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "targets": [{"namespace": "airp-demo", "name": "demo-web"}],
+  "plan_ttl_seconds": 900,
+  "approval_ttl_seconds": 300,
+  "max_replicas": 3
+}

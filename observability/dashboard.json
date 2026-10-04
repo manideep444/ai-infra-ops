@@ -1,0 +1,10 @@
+{
+  "uid": "airp", "title": "Infrastructure Remediation Evidence", "schemaVersion": 39,
+  "version": 1, "refresh": "5s", "time": {"from": "now-30m", "to": "now"},
+  "panels": [
+    {"id": 1, "title": "Latest invocation: workflow outcomes", "type": "stat", "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8}, "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "airp_workflows_total", "legendFormat": "{{state}}"}]},
+    {"id": 2, "title": "Latest invocation: remediation outcomes", "type": "stat", "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8}, "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "airp_remediations_total", "legendFormat": "{{outcome}}"}]},
+    {"id": 3, "title": "Agent execution counts", "type": "timeseries", "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8}, "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "airp_agent_executions_total", "legendFormat": "{{agent}} / {{outcome}}"}]},
+    {"id": 4, "title": "Latest invocation: mean agent latency (seconds)", "type": "stat", "gridPos": {"x": 12, "y": 8, "w": 12, "h": 8}, "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "airp_agent_duration_seconds_sum / airp_agent_duration_seconds_count", "legendFormat": "{{agent}}"}]}
+  ]
+}

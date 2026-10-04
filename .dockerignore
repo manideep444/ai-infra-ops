@@ -1,0 +1,11 @@
+*
+!src/
+!src/**
+!pyproject.toml
+!uv.lock
+!README.md
+!LICENSE
+!policies/
+!policies/**
+!demo/
+!demo/**

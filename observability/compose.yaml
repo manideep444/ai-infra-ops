@@ -1,0 +1,38 @@
+services:
+  metrics:
+    image: prom/node-exporter:v1.9.1
+    user: "0:0"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    command: [--collector.disable-defaults, --collector.textfile, --collector.textfile.directory=/textfile]
+    volumes:
+      - ../.state/telemetry:/textfile:ro
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    ports: ["127.0.0.1:9090:9090"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - ./alerts.yaml:/etc/prometheus/alerts.yaml:ro
+  grafana:
+    image: grafana/grafana:12.1.0
+    ports: ["127.0.0.1:3000:3000"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+    volumes:
+      - ./grafana:/etc/grafana/provisioning:ro
+      - ./dashboard.json:/var/lib/grafana/dashboards/airp.json:ro
+  collector:
+    image: otel/opentelemetry-collector:0.132.0
+    ports: ["127.0.0.1:4318:4318"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    volumes:
+      - ./otel.yaml:/etc/otelcol/config.yaml:ro
