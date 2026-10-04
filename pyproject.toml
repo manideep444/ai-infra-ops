@@ -27,7 +27,7 @@ airp = "airp.cli:main"
 airp-mcp = "airp.mcp.server:main"
 
 [dependency-groups]
-dev = ["pytest>=9,<10", "pytest-cov>=7,<8", "ruff>=0.15,<1", "mypy>=1.19,<2", "types-PyYAML>=6", "pip-audit>=2.10,<3"]
+dev = ["pytest>=9,<10", "pytest-cov>=7,<8", "ruff>=0.15,<1", "mypy>=1.19,<3", "types-PyYAML>=6", "pip-audit>=2.10,<3"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/airp"]
