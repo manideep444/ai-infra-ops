@@ -30,7 +30,7 @@ services:
       - ./grafana:/etc/grafana/provisioning:ro
       - ./dashboard.json:/var/lib/grafana/dashboards/airp.json:ro
   collector:
-    image: otel/opentelemetry-collector:0.132.0
+    image: otel/opentelemetry-collector:0.163.2
     ports: ["127.0.0.1:4318:4318"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
