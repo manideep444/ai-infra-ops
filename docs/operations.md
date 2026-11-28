@@ -1,5 +1,20 @@
 # Operating Runbook
 
+## CI dependency and container maintenance
+
+Keep dependency updates within the supported major-version ranges and commit the
+updated `uv.lock`. Run `make check` and `make scan` before publishing changes.
+Provider major-version migrations (including AzureRM 5) require separate
+compatibility work; do not merge them just to clear a dependency update PR.
+
+The container uses digest-pinned Python 3.12 on Alpine, with OS security updates
+applied in a shared base stage so the builder and runtime use the same libraries.
+This replaces the Debian base whose unresolved high/critical findings blocked
+the scan. OS updates are resolved at build time, so the base digest alone does not
+make builds byte-for-byte reproducible. Refresh the digest regularly and rerun
+the container scan, read-only fixture smoke test, and real kind integration gate.
+Do not suppress findings or bypass admission to make CI pass.
+
 ## Local identities
 
 `make setup` creates private local demo token files. The demo command reads them

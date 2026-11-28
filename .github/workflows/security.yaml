@@ -33,6 +33,12 @@ jobs:
         with:
           persist-credentials: false
       - run: docker build --label org.opencontainers.image.revision="$GITHUB_SHA" -t airp:ci .
+      - name: Container fixture smoke test
+        run: |
+          docker run --rm --read-only --tmpfs /tmp \
+            --tmpfs /state:uid=10001,gid=10001,mode=0700 \
+            -e AIRP_STATE_DIR=/state -e AIRP_PROVIDER=mock -e AIRP_BACKEND=fixture \
+            --entrypoint sh airp:ci -c 'airp init-demo && airp demo --approve-demo'
       - uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
           image-ref: airp:ci
