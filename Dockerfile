@@ -4,7 +4,7 @@ RUN apk upgrade --no-cache
 FROM base AS builder
 WORKDIR /build
 ENV UV_PROJECT_ENVIRONMENT=/opt/venv
-RUN pip install --no-cache-dir uv==0.12.23
+RUN pip install --no-cache-dir uv==0.13.10
 COPY pyproject.toml uv.lock README.md ./
 COPY src ./src
 RUN uv sync --frozen --no-dev --no-editable --python /usr/local/bin/python

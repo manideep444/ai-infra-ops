@@ -96,6 +96,10 @@ resource "azurerm_kubernetes_cluster" "platform" {
   sku_tier                            = "Standard"
   automatic_upgrade_channel           = "patch"
   node_os_upgrade_channel             = "NodeImage"
+  node_provisioning_profile {
+    mode               = "Manual"
+    default_node_pools = "None"
+  }
   default_node_pool {
     name                         = "system"
     node_count                   = 2
@@ -159,12 +163,11 @@ resource "azurerm_user_assigned_identity" "observer" {
 }
 
 resource "azurerm_federated_identity_credential" "observer" {
-  name                = "kubernetes-observer"
-  resource_group_name = azurerm_resource_group.platform.name
-  parent_id           = azurerm_user_assigned_identity.observer.id
-  audience            = ["api://AzureADTokenExchange"]
-  issuer              = azurerm_kubernetes_cluster.platform.oidc_issuer_url
-  subject             = "system:serviceaccount:airp-system:airp-observer"
+  name                      = "kubernetes-observer"
+  user_assigned_identity_id = azurerm_user_assigned_identity.observer.id
+  audience                  = ["api://AzureADTokenExchange"]
+  issuer                    = azurerm_kubernetes_cluster.platform.oidc_issuer_url
+  subject                   = "system:serviceaccount:airp-system:airp-observer"
 }
 
 resource "azurerm_private_dns_zone" "service" {
@@ -175,12 +178,11 @@ resource "azurerm_private_dns_zone" "service" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "service" {
-  for_each              = azurerm_private_dns_zone.service
-  name                  = "platform"
-  resource_group_name   = azurerm_resource_group.platform.name
-  private_dns_zone_name = each.value.name
-  virtual_network_id    = azurerm_virtual_network.platform.id
-  tags                  = local.tags
+  for_each            = azurerm_private_dns_zone.service
+  name                = "platform"
+  private_dns_zone_id = each.value.id
+  virtual_network_id  = azurerm_virtual_network.platform.id
+  tags                = local.tags
 }
 
 resource "azurerm_private_endpoint" "service" {

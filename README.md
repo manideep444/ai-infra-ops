@@ -12,6 +12,7 @@ workflows, infrastructure identifiers, or operational data.
 
 ## What Works
 
+- Python 3.12-3.15 are tested in CI; the container runs Python 3.15 on Alpine.
 - Offline mock AI with real MCP client/server communication, durable workflow state,
 	separate local operator roles, plan-bound approval, dry-run and evidence reports.
 - A fixture backend for a Docker-free demonstration and a separate real kind backend.

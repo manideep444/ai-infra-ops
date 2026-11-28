@@ -10,7 +10,12 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    enhanced_validation {
+      locations          = true
+      resource_providers = true
+    }
+  }
   subscription_id                 = var.subscription_id
   resource_provider_registrations = "none"
 }
