@@ -1,6 +1,6 @@
 services:
   metrics:
-    image: prom/node-exporter:v1.9.1
+    image: prom/node-exporter:v1.13.1
     user: "0:0"
     read_only: true
     cap_drop: [ALL]
@@ -9,7 +9,7 @@ services:
     volumes:
       - ../.state/telemetry:/textfile:ro
   prometheus:
-    image: prom/prometheus:v3.5.0
+    image: prom/prometheus:v3.16.0
     ports: ["127.0.0.1:9090:9090"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
@@ -17,7 +17,7 @@ services:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yml:ro
       - ./alerts.yaml:/etc/prometheus/alerts.yaml:ro
   grafana:
-    image: grafana/grafana:12.1.0
+    image: grafana/grafana:13.3.1
     ports: ["127.0.0.1:3000:3000"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
@@ -30,7 +30,7 @@ services:
       - ./grafana:/etc/grafana/provisioning:ro
       - ./dashboard.json:/var/lib/grafana/dashboards/airp.json:ro
   collector:
-    image: otel/opentelemetry-collector:0.132.0
+    image: otel/opentelemetry-collector:0.165.0
     ports: ["127.0.0.1:4318:4318"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]

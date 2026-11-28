@@ -65,4 +65,8 @@ def test_real_cluster_workflow_and_admission(tmp_path):
     result = workflow.execute(run.id, EXECUTOR, backend, dry_run=False)
     assert result.state == State.SUCCEEDED, result.reason
     assert result.validation.passed and store.verify()
+    with pytest.raises(ApiException) as stale:
+        backend.apply(run.plan)
+    assert stale.value.status == 422, stale.value.body
+    assert backend.read(target).automount_disabled
     store.close()

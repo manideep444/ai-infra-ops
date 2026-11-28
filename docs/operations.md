@@ -4,16 +4,31 @@
 
 Keep dependency updates within the supported major-version ranges and commit the
 updated `uv.lock`. Run `make check` and `make scan` before publishing changes.
-Provider major-version migrations (including AzureRM 5) require separate
-compatibility work; do not merge them just to clear a dependency update PR.
+Provider major-version migrations require compatibility work; do not merge them
+just to clear a dependency update PR. MCP remains on the stable 1.x SDK contract.
 
-The container uses digest-pinned Python 3.12 on Alpine, with OS security updates
+The container uses digest-pinned Python 3.15 on Alpine, with OS security updates
 applied in a shared base stage so the builder and runtime use the same libraries.
 This replaces the Debian base whose unresolved high/critical findings blocked
 the scan. OS updates are resolved at build time, so the base digest alone does not
 make builds byte-for-byte reproducible. Refresh the digest regularly and rerun
 the container scan, read-only fixture smoke test, and real kind integration gate.
 Do not suppress findings or bypass admission to make CI pass.
+The runtime contains neither pip nor its ensurepip bootstrap bundle; their
+vendored build-time dependencies are unnecessary for running the installed app.
+Dependency installation belongs in the builder stage, not in a running container.
+
+CI tests Python 3.12, 3.13, 3.14 and 3.15; the package minimum and lint/type-check
+targets remain 3.12. CI and image builds use uv 0.13.10 so managed Python 3.15 is a
+final release rather than the release candidate in older uv download catalogs.
+Kubernetes client 37 uses its typed Deployment patch API with explicit JSON Patch
+content type; dry-run, atomic drift preconditions and admission restrictions remain
+covered by the real kind gate. Its kubeconfig loader is still untyped upstream,
+so that single call has a narrow mypy exception.
+
+The observability CI job validates the Prometheus and Collector configurations,
+starts the Compose stack, checks Grafana dashboard provisioning and OTLP ingestion,
+and requires Prometheus to scrape a fictional node-exporter textfile metric.
 
 Admission handles the API server's `/validate?timeout=...` requests by routing on
 the URL path. Policy denials return an AdmissionReview with status code 403;

@@ -43,6 +43,15 @@ The admin group variable is a JSON array of Entra object IDs.
 
 ## Plan and apply
 
+The configuration uses AzureRM 5.14+. AKS node provisioning remains `Manual` with
+no automatically created default pools: Terraform still owns the two explicit
+pools. Federated credentials reference `user_assigned_identity_id`, and private
+DNS links reference `private_dns_zone_id`. Location and resource-provider
+validation stay enabled at plan time despite the provider's changed defaults.
+These schema migrations do not authorize deployment or imply a no-change plan.
+For existing state, back it up and review the complete saved plan for replacement
+or drift before using the protected apply job.
+
 Local validation is credential-free:
 
 ```bash

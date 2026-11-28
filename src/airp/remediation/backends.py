@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from kubernetes.client import ApiClient, AppsV1Api, Configuration
-from kubernetes.config import load_kube_config
+from kubernetes.config.kube_config import load_kube_config
 
 from airp.core.models import Plan, Snapshot, Target, digest
 from airp.core.security import Forbidden, read_json
@@ -71,7 +71,7 @@ class FixtureBackend:
 class KubernetesBackend:
     def __init__(self, kubeconfig: Path, context: str, timeout: int = 90) -> None:
         configuration = Configuration()
-        load_kube_config(
+        load_kube_config(  # type: ignore[no-untyped-call]
             config_file=str(kubeconfig), context=context, client_configuration=configuration
         )
         if not configuration.verify_ssl:
@@ -90,7 +90,7 @@ class KubernetesBackend:
         deployment = self.api.read_namespaced_deployment(
             target.name, target.namespace, _request_timeout=(5, 15)
         )
-        value = self.api_client.sanitize_for_serialization(deployment)
+        value = deployment.model_dump(mode="json", by_alias=True, exclude_none=True)
         metadata, state = value["metadata"], value.get("status", {})
         return Snapshot(
             target=target,
@@ -105,19 +105,12 @@ class KubernetesBackend:
         )
 
     def apply(self, plan: Plan, dry_run: bool = False) -> None:
-        self.api_client.call_api(
-            "/apis/apps/v1/namespaces/{namespace}/deployments/{name}",
-            "PATCH",
-            path_params={"namespace": plan.target.namespace, "name": plan.target.name},
-            query_params=[("dryRun", "All")] if dry_run else [],
-            header_params={
-                "Content-Type": "application/json-patch+json",
-                "Accept": "application/json",
-            },
-            body=json_patch(plan),
-            response_type="V1Deployment",
-            auth_settings=["BearerToken"],
-            _return_http_data_only=True,
+        self.api.patch_namespaced_deployment(
+            plan.target.name,
+            plan.target.namespace,
+            json_patch(plan),
+            dry_run="All" if dry_run else None,
+            _content_type="application/json-patch+json",
             _request_timeout=(5, 20),
         )
 
