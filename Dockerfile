@@ -10,7 +10,9 @@ COPY src ./src
 RUN uv sync --frozen --no-dev --no-editable --python /usr/local/bin/python
 
 FROM base
-RUN addgroup -S -g 10001 airp && adduser -S -D -H -u 10001 -G airp airp
+RUN python -m pip uninstall --yes pip \
+    && rm -r /usr/local/lib/python3.15/ensurepip \
+    && addgroup -S -g 10001 airp && adduser -S -D -H -u 10001 -G airp airp
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH" PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /app

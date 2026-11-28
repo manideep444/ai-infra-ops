@@ -14,6 +14,9 @@ the scan. OS updates are resolved at build time, so the base digest alone does n
 make builds byte-for-byte reproducible. Refresh the digest regularly and rerun
 the container scan, read-only fixture smoke test, and real kind integration gate.
 Do not suppress findings or bypass admission to make CI pass.
+The runtime contains neither pip nor its ensurepip bootstrap bundle; their
+vendored build-time dependencies are unnecessary for running the installed app.
+Dependency installation belongs in the builder stage, not in a running container.
 
 CI tests Python 3.12, 3.13, 3.14 and 3.15; the package minimum and lint/type-check
 targets remain 3.12. CI and image builds use uv 0.13.10 so managed Python 3.15 is a
