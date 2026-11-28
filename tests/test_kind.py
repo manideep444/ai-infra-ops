@@ -31,10 +31,10 @@ def test_real_cluster_workflow_and_admission(tmp_path):
         backend.api.patch_namespaced_deployment(
             target.name, target.namespace, {"spec": {"replicas": 9}}
         )
-    assert denied.value.status == 403
+    assert denied.value.status == 403, denied.value.body
     with pytest.raises(ApiException) as forbidden:
         backend.api.read_namespaced_deployment("not-allowlisted", target.namespace)
-    assert forbidden.value.status == 403
+    assert forbidden.value.status == 403, forbidden.value.body
     bundle_path = tmp_path / "evidence.json"
     atomic_json(
         bundle_path,
