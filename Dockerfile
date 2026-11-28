@@ -3,6 +3,7 @@ RUN apk upgrade --no-cache
 
 FROM base AS builder
 WORKDIR /build
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv
 RUN pip install --no-cache-dir uv==0.12.23
 COPY pyproject.toml uv.lock README.md ./
 COPY src ./src
@@ -10,7 +11,7 @@ RUN uv sync --frozen --no-dev --no-editable --python /usr/local/bin/python
 
 FROM base
 RUN addgroup -S -g 10001 airp && adduser -S -D -H -u 10001 -G airp airp
-COPY --from=builder /build/.venv /opt/venv
+COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH" PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /app
 COPY policies ./policies

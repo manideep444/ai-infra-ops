@@ -15,6 +15,11 @@ make builds byte-for-byte reproducible. Refresh the digest regularly and rerun
 the container scan, read-only fixture smoke test, and real kind integration gate.
 Do not suppress findings or bypass admission to make CI pass.
 
+Admission handles the API server's `/validate?timeout=...` requests by routing on
+the URL path. Policy denials return an AdmissionReview with status code 403;
+transport failures must not be mistaken for a successful policy denial. The kind
+test includes API response bodies in failed assertions to distinguish these cases.
+
 ## Local identities
 
 `make setup` creates private local demo token files. The demo command reads them

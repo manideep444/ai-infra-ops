@@ -3,6 +3,7 @@ import ssl
 from copy import deepcopy
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
+from urllib.parse import urlsplit
 
 EXECUTOR = "system:serviceaccount:airp-system:airp-executor"
 
@@ -40,7 +41,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         self.connection.settimeout(5)
         length = int(self.headers.get("Content-Length", "0"))
-        if self.path != "/validate" or not 0 < length <= 256_000:
+        if urlsplit(self.path).path != "/validate" or not 0 < length <= 256_000:
             self.send_error(400)
             return
         uid = ""
@@ -60,7 +61,8 @@ class Handler(BaseHTTPRequestHandler):
                     "uid": uid,
                     "allowed": allowed,
                     "status": {
-                        "message": "Catalog-only mutation" if allowed else "Mutation denied"
+                        "code": 200 if allowed else 403,
+                        "message": "Catalog-only mutation" if allowed else "Mutation denied",
                     },
                 },
             }
